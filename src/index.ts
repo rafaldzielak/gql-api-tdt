@@ -9,6 +9,7 @@ import {
   ApolloServerPluginLandingPageProductionDefault,
 } from "apollo-server-core";
 import { resolvers } from "./resolvers";
+import { connectToMongo } from "./utils/mongo";
 dotenv.config();
 
 async function bootstrap() {
@@ -39,6 +40,7 @@ async function bootstrap() {
   // app.listen on express server
   app.listen({ port: 4000 }, () => console.log("App listening on port localhost:4000"));
   // connect to DB
+  connectToMongo();
 }
 
 bootstrap();
