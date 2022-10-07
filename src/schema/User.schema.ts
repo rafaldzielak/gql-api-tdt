@@ -1,7 +1,16 @@
-import { getModelForClass, prop, pre } from "@typegoose/typegoose";
+import { getModelForClass, prop, pre, queryMethod, index } from "@typegoose/typegoose";
 import { IsEmail, MaxLength, MinLength } from "class-validator";
 import { Field, InputType, ObjectType } from "type-graphql";
 import bcrypt from "bcrypt";
+import { AsQueryMethod, ReturnModelType } from "@typegoose/typegoose/lib/types";
+
+type QueryHelpers = {
+  findByEmail: AsQueryMethod<typeof findByEmail>;
+};
+
+function findByEmail(this: ReturnModelType<typeof User, QueryHelpers>, email: User["email"]) {
+  return this.findOne({ email });
+}
 
 @pre<User>("save", async function () {
   if (!this.isModified("password")) return;
@@ -9,6 +18,8 @@ import bcrypt from "bcrypt";
   const hash = await bcrypt.hashSync(this.password, salt);
   this.password = hash;
 })
+@queryMethod(findByEmail)
+@index({ email: 1 })
 @ObjectType()
 export class User {
   @Field(() => String) // gql type
@@ -26,7 +37,7 @@ export class User {
   password: string;
 }
 
-export const UserModel = getModelForClass(User);
+export const UserModel = getModelForClass<typeof User, QueryHelpers>(User);
 
 @InputType()
 export class CreateUserInput {
@@ -39,6 +50,15 @@ export class CreateUserInput {
 
   @MinLength(6, { message: "Password must be at least 6 characters long" })
   @MaxLength(50, { message: "Password must not be longer than 50 characters" })
+  @Field(() => String)
+  password: string;
+}
+@InputType()
+export class LoginInput {
+  @Field(() => String)
+  @IsEmail()
+  email: string;
+
   @Field(() => String)
   password: string;
 }
