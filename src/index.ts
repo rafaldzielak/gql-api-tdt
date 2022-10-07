@@ -10,6 +10,9 @@ import {
 } from "apollo-server-core";
 import { resolvers } from "./resolvers";
 import { connectToMongo } from "./utils/mongo";
+import { verifyJwt } from "./utils/jwt";
+import { User } from "./schema/User.schema";
+import Context from "./types/context";
 dotenv.config();
 
 async function bootstrap() {
@@ -24,8 +27,11 @@ async function bootstrap() {
   // Create apollo server
   const server = new ApolloServer({
     schema,
-    context: (ctx) => {
-      console.log(ctx);
+    context: (ctx: Context) => {
+      if (ctx.req.cookies.accessToken) {
+        const user = verifyJwt<User>(ctx.req.cookies.accessToken);
+        ctx.user = user;
+      }
       return ctx;
     },
     plugins: [

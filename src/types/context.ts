@@ -4,7 +4,7 @@ import { User } from "../schema/User.schema";
 type Context = {
   req: Request;
   res: Response;
-  user: User;
+  user: User | null;
 };
 
 export default Context;

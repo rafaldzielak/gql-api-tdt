@@ -20,11 +20,7 @@ export default class UserResolver {
   }
 
   @Query(() => User)
-  me() {
-    return {
-      _id: "123",
-      name: "Rafa",
-      email: "rafa@gmail.com",
-    };
+  me(@Ctx() context: Context) {
+    return context.user;
   }
 }
