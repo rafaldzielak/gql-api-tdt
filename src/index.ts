@@ -13,13 +13,14 @@ import { connectToMongo } from "./utils/mongo";
 import { verifyJwt } from "./utils/jwt";
 import { User } from "./schema/User.schema";
 import Context from "./types/context";
+import authChecker from "./utils/authChecker";
 dotenv.config();
 
 async function bootstrap() {
   // Build the schema
   const schema = await buildSchema({
     resolvers,
-    // authChecker,
+    authChecker,
   });
   // Initialize express
   const app = express();
